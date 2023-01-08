@@ -1,8 +1,10 @@
 const express = require('express');
+const cors = require('cors');
 
 const server = express();
 
 server.use(express.json());
+server.use(cors());
 
 const database = {
     users: [
@@ -33,7 +35,7 @@ server.post('/signin', (req, res) => {
     const { email, password } = req.body;
     database.users.forEach(user => {
         if (user.email === email && user.password === password) {
-            return res.status(200).json("Login sucess")
+            return res.status(200).json(user);
         }
     });
     return res.status(404).json("Error loggin in");
