@@ -33,12 +33,12 @@ server.get('/', (req, res) => {
 
 server.post('/signin', (req, res) => {
     const { email, password } = req.body;
-    database.users.forEach(user => {
-        if (user.email === email && user.password === password) {
-            return res.status(200).json(user);
-        }
-    });
-    return res.status(404).json("Error loggin in");
+    const filtered = database.users.filter(user => (user.email === email && user.password === password));
+    if (filtered.length) {
+        return res.status(200).json(filtered[0]);
+    } else {
+        return res.status(404).json("Error loggin in");
+    }
 })
 
 server.post('/register', (req, res) => {
@@ -59,7 +59,7 @@ server.post('/register', (req, res) => {
 server.get('/profile/:id', (req, res) => {
     const { id } = req.params;
     const filtered = database.users.filter(user => user.id === id);
-    if(filtered.length){
+    if (filtered.length) {
         return res.status(200).json(filtered[0]);
     } else {
         return res.status(404).json("User not found");
@@ -69,7 +69,7 @@ server.get('/profile/:id', (req, res) => {
 server.put('/image', (req, res) => {
     const { id } = req.body;
     const filtered = database.users.filter(user => user.id === id);
-    if(filtered.length){
+    if (filtered.length) {
         return res.status(200).json(++filtered[0].entries);
     } else {
         return res.status(404).json("User not found");
