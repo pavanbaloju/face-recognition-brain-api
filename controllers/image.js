@@ -1,15 +1,23 @@
-const Clarifai = require('clarifai');
+const {ClarifaiStub, grpc} = require("clarifai-nodejs-grpc");
 
-const clarifaiApp = new Clarifai.App({
-    apiKey: 'e7299f110b3540829ee80279e7526851'
-});
+const stub = ClarifaiStub.grpc();
+const metadata = new grpc.Metadata();
+metadata.set("authorization", "Key e7299f110b3540829ee80279e7526851");
 
 const handleDetectFace = (req, res) => {
     const imageUrl = req.body.imageUrl;
-    const modelName = 'face-detection';
-    clarifaiApp.models.predict(modelName, imageUrl)
-        .then(data => res.status(200).json(data))
-        .catch((err) => res.status(400).json("unable to retrieve data from api"));
+    stub.PostModelOutputs({
+            model_id: "face-detection",
+            inputs: [{data: {image: {url: imageUrl}}}]
+        },
+        metadata,
+        (err, data) => {
+            if (err) {
+                return res.status(400).json("unable to retrieve data from api");
+            }
+            return res.status(200).json(data);
+        }
+    );
 }
 
 const handleImage = (req, res, db) => {
