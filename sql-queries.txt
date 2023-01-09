@@ -1,0 +1,58 @@
+CREATE TABLE table_name (col1 datatype1, ....);
+CREATE TABLE users (name text, age smallint, birthday date);
+
+INSERT INTO table_name (col1, ...) values (val1, ...);
+INSERT INTO users (name, age, birthday) values ('pavan', 23, '1999-07-01');
+INSERT INTO users (name, age, birthday) values ('surya', 31, '1991-08-21');
+INSERT INTO users (name, age, birthday) values ('hardik', 28, '1994-03-16');
+
+ALTER TABLE table_name ADD column datatype;
+ALTER TABLE users ADD score smallint;
+
+UPDATE table_name SET column = value WHERE somecolumn = somevalue;
+UPDATE users SET score = 15 WHERE name = 'pavan';
+UPDATE users SET score = 25 WHERE name = 'surya' or name='hardik';
+
+INSERT INTO users (name, age, birthday, score) values ('virat', 32, '1990-11-05', 50);
+
+SELECT * FROM users WHERE name LIKE '%at';
+SELECT * FROM users ORDER by score DESC;
+SELECT AVG(score) FROM users;
+SELECT COUNT(score) FROM users;
+
+CREATE TABLE login (
+    id serial NOT NULL PRIMARY KEY, 
+    secret VARCHAR (100) NOT NULL,
+    name text UNIQUE NOT NULL
+    );
+
+INSERT INTO login (secret, name) values ('pavansecret', 'pavan');
+INSERT INTO login (secret, name) values ('iam360', 'surya');
+INSERT INTO login (secret, name) values ('allrounder', 'hardik');
+INSERT INTO login (secret, name) values ('allrounder', 'hardik');
+
+SELECT * FROM users JOIN login ON users.name = login.name;
+
+DELETE FROM table_name WHERE condition;
+DELETE FROM users WHERE name='pavan';
+
+DROP TABLE table_name;
+DROP TABLE login;
+
+https://www.khanacademy.org/computing/computer-programming/sql
+--------------------------------------------------------------------
+
+CREATE TABLE users (
+    id serial PRIMARY KEY,
+    name VARCHAR(100),
+    email text UNIQUE NOT NULL,
+    entries bigint DEFAULT 0,
+    joined TIMESTAMP NOT NULL
+);
+
+CREATE TABLE login (
+    id serial PRIMARY KEY,
+    hash VARCHAR(100) NOT NULL,
+    email text UNIQUE NOT NULL
+
+);
