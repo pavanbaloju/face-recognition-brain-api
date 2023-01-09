@@ -4,7 +4,6 @@ const knex = require('knex');
 const bcrypt = require('bcrypt-nodejs');
 
 const server = express();
-
 server.use(express.json());
 server.use(cors());
 
@@ -18,27 +17,6 @@ const db = knex({
         database: 'smart-brain-api'
     }
 });
-
-const database = {
-    users: [
-        {
-            id: '123',
-            name: 'Surya',
-            email: 'surya@sky.com',
-            password: 'iam360',
-            entries: 0,
-            joined: new Date()
-        },
-        {
-            id: '124',
-            name: 'Hardik',
-            email: 'hardik@cap.com',
-            password: 'iamcap',
-            entries: 0,
-            joined: new Date()
-        }
-    ]
-}
 
 server.get('/', (_, res) => {
     db.select('*')
