@@ -28,5 +28,6 @@ server.post('/signin', (req, res) => signin.handleSignIn(req, res, bcrypt, db))
 server.post('/register', (req, res) => register.handleRegister(req, res, bcrypt, db));
 server.get('/profile/:id', (req, res) => profile.handleProfile(req, res, db));
 server.put('/image', (req, res) => image.handleImage(req, res, db));
+server.post('/detectface', (req, res) => image.handleDetectFace(req, res));
 server.listen(3010, () => console.log('server is running on port 3010'))
 
