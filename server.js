@@ -1,10 +1,24 @@
 const express = require('express');
 const cors = require('cors');
+const knex = require('knex');
+const { reset } = require('nodemon');
+const { response } = require('express');
 
 const server = express();
 
 server.use(express.json());
 server.use(cors());
+
+const db = knex({
+    client: 'postgres',
+    connection: {
+        host: '127.0.0.1',
+        port: 5432,
+        user: 'baloz',
+        password: '',
+        database: 'smart-brain-api'
+    }
+});
 
 const database = {
     users: [
@@ -43,39 +57,43 @@ server.post('/signin', (req, res) => {
 
 server.post('/register', (req, res) => {
     const { email, password, name } = req.body;
-    const users = database.users;
     const newUser = {
-        id: '125',
         name: name,
         email: email,
-        password: password,
         entries: 0,
         joined: new Date()
     };
-    users.push(newUser)
-    return res.status(200).json(users[users.length - 1]);
+    db('users')
+        .returning('*')
+        .insert(newUser)
+        .then(user => res.status(200).json(user))
+        .catch(() => res.status(400).json("Unable to register"));
+
 })
 
 server.get('/profile/:id', (req, res) => {
     const { id } = req.params;
-    const filtered = database.users.filter(user => user.id === id);
-    if (filtered.length) {
-        return res.status(200).json(filtered[0]);
-    } else {
-        return res.status(404).json("User not found");
-    }
+    db.select('*')
+        .from('users')
+        .where({ id: id })
+        .then(users => {
+            if (users.length) {
+                return res.status(200).json(users[0]);
+            } else {
+                return res.status(404).json("User not found");
+            }
+        });
 })
 
 server.put('/image', (req, res) => {
     const { id } = req.body;
-    const filtered = database.users.filter(user => user.id === id);
-    if (filtered.length) {
-        return res.status(200).json(++filtered[0].entries);
-    } else {
-        return res.status(404).json("User not found");
-    }
+    db('users')
+    .where('id', '=', id)
+    .increment('entries', 1)
+    .returning('entries')
+    .then(entries => res.status(200).json(entries[0].entries))
+    .catch(() => res.status(400).json("Unable to get entries"));
 })
-
 
 server.listen(3010, () => {
     console.log('server is running on port 3010');
