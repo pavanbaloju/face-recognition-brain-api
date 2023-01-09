@@ -40,18 +40,32 @@ const database = {
     ]
 }
 
-server.get('/', (req, res) => {
-    return res.json(database.users);
+server.get('/', (_, res) => {
+    db.select('*')
+    .from('users')
+    .then(users => res.status(200).json(users))
+    .catch(() => res.status(400).json("Something went wrong"));
 })
 
 server.post('/signin', (req, res) => {
     const { email, password } = req.body;
-    const filtered = database.users.filter(user => (user.email === email && user.password === password));
-    if (filtered.length) {
-        return res.status(200).json(filtered[0]);
-    } else {
-        return res.status(404).json("Error loggin in");
-    }
+    db.select('email', 'hash')
+    .from('login')
+    .where('email', '=', email)
+    .then(data => {
+        const isValid = bcrypt.compareSync(password, data[0].hash);
+        if(isValid) {
+            db.select('*')
+            .from('users')
+            .where('email', '=', email)
+            .then(users => res.status(200).json(users[0]))
+            .catch(() => res.status(400).json("unable to find user"))
+        }
+        else{
+            res.status(404).json("wrong credentials");
+        }
+    })
+    .catch(() => res.status(404).json("wrong credentials"));
 })
 
 server.post('/register', (req, res) => {
