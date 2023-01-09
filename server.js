@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const knex = require('knex');
-const { reset } = require('nodemon');
-const { response } = require('express');
+const bcrypt = require('bcrypt-nodejs');
 
 const server = express();
 
@@ -57,18 +56,29 @@ server.post('/signin', (req, res) => {
 
 server.post('/register', (req, res) => {
     const { email, password, name } = req.body;
-    const newUser = {
-        name: name,
-        email: email,
-        entries: 0,
-        joined: new Date()
-    };
-    db('users')
-        .returning('*')
-        .insert(newUser)
-        .then(user => res.status(200).json(user))
-        .catch(() => res.status(400).json("Unable to register"));
+    const hash = bcrypt.hashSync(password);
+    db.transaction(trx => {
+        trx.insert({
+            hash: hash,
+            email: email
+        })
+            .into('login')
+            .returning('email')
+            .then(loginEmails => {
+                return trx('users')
+                    .returning('*')
+                    .insert({
+                        email: loginEmails[0].email,
+                        name: name,
+                        joined: new Date(),
 
+                    })
+                    .then(users => res.status(200).json(users[0]))
+            })
+            .then(trx.commit)
+            .catch(trx.rollback)
+    })
+        .catch(() => res.status(400).json("unable to register"));
 })
 
 server.get('/profile/:id', (req, res) => {
@@ -88,11 +98,11 @@ server.get('/profile/:id', (req, res) => {
 server.put('/image', (req, res) => {
     const { id } = req.body;
     db('users')
-    .where('id', '=', id)
-    .increment('entries', 1)
-    .returning('entries')
-    .then(entries => res.status(200).json(entries[0].entries))
-    .catch(() => res.status(400).json("Unable to get entries"));
+        .where('id', '=', id)
+        .increment('entries', 1)
+        .returning('entries')
+        .then(entries => res.status(200).json(entries[0].entries))
+        .catch(() => res.status(400).json("Unable to get entries"));
 })
 
 server.listen(3010, () => {
