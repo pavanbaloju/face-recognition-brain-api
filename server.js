@@ -13,15 +13,10 @@ server.use(express.json());
 server.use(cors());
 
 const db = knex({
-    client: 'postgres',
-    connection: {
-        host: process.env.DATABASE_URL || 'localhost',
-        port: process.env.DATABASE_PORT || 5432,
-        user: process.env.DATABASE_USER || 'baloz',
-        password: process.env.DATABASE_PASSWORD || '',
-        database: process.env.DATABASE_NAME || 'smart-brain-api'
-    }
-});
+    client: 'pg',
+    connection: process.env.PG_CONNECTION_STRING,
+    searchPath: ['knex', 'public'],
+  });
 
 server.get('/', (_, res) => users.handleUsers(res, db));
 server.post('/signin', (req, res) => signin.handleSignIn(req, res, bcrypt, db))
