@@ -15,11 +15,11 @@ server.use(cors());
 const db = knex({
     client: 'postgres',
     connection: {
-        host: '127.0.0.1',
-        port: 5432,
-        user: 'baloz',
-        password: '',
-        database: 'smart-brain-api'
+        host: process.env.DATABASE_URL || 'localhost',
+        port: process.env.DATABASE_PORT || 5432,
+        user: process.env.DATABASE_USER || 'baloz',
+        password: process.env.DATABASE_PASSWORD || '',
+        database: process.env.DATABASE_NAME || 'smart-brain-api'
     }
 });
 
@@ -29,5 +29,5 @@ server.post('/register', (req, res) => register.handleRegister(req, res, bcrypt,
 server.get('/profile/:id', (req, res) => profile.handleProfile(req, res, db));
 server.put('/image', (req, res) => image.handleImage(req, res, db));
 server.post('/detectface', (req, res) => image.handleDetectFace(req, res));
-server.listen(3010, () => console.log('server is running on port 3010'))
+server.listen(process.env.PORT || 3010, () => console.log('server is running on port 3010'))
 
